@@ -3,207 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMPUTOTAL - Orden de Ingreso</title>
-    <!-- Script para generar PDFs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Orden de Ingreso COMPUTOTAL - Sistema Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { background: #ffffff; width: 100%; max-width: 750px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #ff6600; padding-bottom: 15px; margin-bottom: 25px; }
-        .logo-title h1 { margin: 0; color: #1e293b; font-size: 28px; font-weight: 800; letter-spacing: 0.5px; }
-        .logo-title span { color: #ff6600; }
-        .logo-title p { margin: 5px 0 0 0; color: #64748b; font-size: 14px; }
-        .order-info { text-align: right; }
-        .order-info h2 { margin: 0; color: #ff6600; font-size: 20px; }
-        .order-info p { margin: 5px 0 0 0; color: #475569; font-weight: bold; }
-        .section-title { background: #f8fafc; color: #1e293b; padding: 8px 12px; font-size: 14px; font-weight: 700; text-transform: uppercase; border-left: 4px solid #ff6600; margin: 20px 0 12px 0; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .col-full { grid-column: span 2; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 12px; color: #475569; margin-bottom: 4px; font-weight: 600; }
-        .form-group input, .form-group textarea { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 14px; color: #334155; background: #fff; width: 100%; }
-        .form-group input:focus, .form-group textarea:focus { border-color: #ff6600; outline: none; box-shadow: 0 0 0 3px rgba(255,102,0,0.1); }
-        textarea { resize: vertical; min-height: 70px; }
+        :root { --rojo-corp: #ff4500; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Sección de términos y firmas */
-        .terms-box { font-size: 11px; color: #64748b; text-align: justify; background: #f8fafc; padding: 10px; border-radius: 5px; border: 1px dashed #cbd5e1; margin-top: 20px; line-height: 1.4; }
-        .signature-area { display: flex; flex-direction: column; align-items: center; margin-top: 15px; padding: 10px; background: #f1f5f9; border-radius: 6px; }
-        .canvas-container { position: relative; background: #fff; border: 20px solid #cbd5e1; border-radius: 4px; width: 100%; max-width: 400px; height: 150px; }
-        canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
-        .signature-buttons { margin-top: 8px; display: flex; gap: 10px; }
-        .btn-clear { background: #64748b; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
-        .btn-clear:hover { background: #475569; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; padding: 15px; gap: 20px; flex-direction: row; }
+        
+        /* Panel de edición izquierdo */
+        .panel { width: 350px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; font-size: 0.85rem; flex-shrink: 0; }
+        .panel h2 { color: var(--rojo-corp); margin-bottom: 15px; font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        .panel h3 { font-size: 0.85rem; margin: 15px 0 5px 0; color: #555; text-transform: uppercase; border-left: 3px solid var(--rojo-corp); padding-left: 5px; }
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; color: #333; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.85rem; padding: 4px 0; }
+        .checkbox-group input { width: 18px; height: 18px; cursor: pointer; }
+        .checkbox-grid-panel { display: grid; grid-template-columns: 1fr; gap: 2px; }
+        button { width: 100%; background: var(--rojo-corp); color: white; padding: 14px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 0.95rem; }
 
-        .btn-container { margin-top: 25px; text-align: center; }
-        .btn-download { background: #ff6600; color: #fff; border: none; padding: 12px 30px; font-size: 16px; font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; max-width: 300px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(255,102,0,0.15); }
-        .btn-download:hover { background: #e05500; }
+        /* Área de Pizarra Digital en el panel */
+        .pizarra-contenedor { margin-top: 10px; background: #f9f9f9; border: 1px dashed #ccc; padding: 8px; border-radius: 4px; text-align: center; }
+        .pizarra-lienzo { background: white; border: 1px solid #ddd; border-radius: 4px; cursor: crosshair; width: 100%; height: 100px; display: block; }
+        .btn-borrar-firma { background: #666; color: white; padding: 5px; font-size: 11px; margin-top: 5px; width: auto; display: inline-block; padding: 4px 10px; border-radius: 3px; }
 
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            .col-full { grid-column: span 1; }
-            .header { flex-direction: column; text-align: center; gap: 15px; }
-            .order-info { text-align: center; }
+        /* HOJA A4 - ORDEN DE INGRESO */
+        #hoja-container { display: block; }
+        #hoja-ingreso { 
+            width: 210mm; height: 296mm; background: white; 
+            padding: 8mm 15mm; 
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); overflow: hidden;
         }
 
-        /* Ajustes específicos para el PDF generado */
-        .no-print { display: none !important; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--rojo-corp); padding-bottom: 8px; margin-bottom: 12px; }
+        .logo-svg { width: 140px; } 
+        .company-info { text-align: right; font-size: 10px; font-weight: bold; line-height: 1.4; color: #000; }
+        .num-orden { color: var(--rojo-corp); font-size: 16px; font-weight: bold; margin-top: 5px; }
+        
+        .cuerpo { flex: 1; display: flex; flex-direction: column; }
+        .titulo-seccion { background: #fafafa; padding: 5px 12px; border-left: 6px solid var(--rojo-corp); font-weight: bold; font-size: 11.5px; margin-top: 8px; margin-bottom: 6px; border-bottom: 1px solid #eee; text-transform: uppercase; }
+        
+        .tabla-datos { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 11px; }
+        .tabla-datos td { padding: 4px 8px; border: 1px solid #e5e7eb; width: 25%; color: #000; }
+        .lbl { font-weight: bold; background-color: #fcfcfc; color: #333; }
+        
+        .tabla-checklist { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 10.5px; }
+        .tabla-checklist td { border: 1px solid #e5e7eb; padding: 4px 6px; width: 25%; color: #000; }
+        .check-item { font-family: monospace; font-weight: bold; margin-right: 4px; font-size: 12px; }
+        
+        .box-detalle { border: 1px solid #e5e7eb; padding: 8px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; color: #000; min-height: 35px; white-space: pre-wrap; background: #fff; }
+        
+        .seccion-condiciones { margin-top: auto; font-size: 9px; border-top: 1px solid #eee; padding-top: 6px; line-height: 1.35; color: #444; text-align: justify; }
+        
+        .seccion-firmas { display: flex; justify-content: space-between; margin-top: 15px; margin-bottom: 15px; padding-bottom: 5px; }
+        .col-firma { width: 42%; text-align: center; font-size: 11px; font-weight: bold; color: #000; display: flex; flex-direction: column; justify-content: flex-end; }
+        .linea-firma { border-top: 1px solid #000; margin-top: 10px; padding-top: 5px; }
+        
+        /* Imagen de la firma replicada en la hoja */
+        .firma-destino-img { display: block; max-height: 45px; margin: 0 auto; object-fit: contain; }
+        
+        #display-tecnico { font-family: 'Dancing Script', cursive; font-size: 22px; font-weight: 400; display: block; margin-top: 5px; color: #000; letter-spacing: 0.5px; line-height: 1; }
+
+        .footer { margin-top: auto; border-top: 2px solid var(--rojo-corp); padding-top: 8px; display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; color: #000; background: white; z-index: 10; }
+
+        /* CONFIGURACIÓN DE IMPRESIÓN LIMPIA EN IPHONE */
+        @media print {
+            body { background: white; padding: 0; }
+            .panel { display: none !important; } /* Oculta los controles para que no salgan en el PDF */
+            #hoja-container { display: block !important; position: static !important; }
+            #hoja-ingreso { box-shadow: none; width: 100%; height: auto; }
+        }
+
+        /* DISEÑO DE PANTALLA EN MÓVIL */
+        @media screen and (max-width: 768px) {
+            body { padding: 5px; flex-direction: column; }
+            .panel { width: 100%; height: auto; max-height: none; box-shadow: none; }
+            #hoja-container { position: absolute; left: -9999px; top: 0; } /* Oculto solo en pantalla móvil */
+        }
     </style>
 </head>
 <body>
 
-<div class="container" id="invoice">
-    <div class="header">
-        <div class="logo-title">
-            <h1>COMPU<span>TOTAL</span></h1>
-            <p>Servicio Técnico Autorizado de Celulares</p>
-        </div>
-        <div class="order-info">
-            <h2>ORDEN DE INGRESO</h2>
-            <p>No. <input type="text" id="orderNumber" style="width: 70px; display: inline; padding: 2px 5px; font-weight: bold; text-align: center;" placeholder="001"></p>
-        </div>
+<div class="panel">
+    <h2>Recepción COMPUTOTAL</h2>
+    
+    <h3>1. Control y Cliente</h3>
+    <div class="input-group"><label>N° Orden de Ingreso:</label><input type="text" id="inOrden" value="OR-2026-1045" oninput="updateText()"></div>
+    <div class="input-group"><label>Cliente / Nombre completo:</label><input type="text" id="inCliente" value="Juan Carlos Pérez" oninput="updateText()"></div>
+    <div class="input-group"><label>Teléfono Celular:</label><input type="text" id="inTelefono" value="099-876-5432" oninput="updateText()"></div>
+    <div class="input-group"><label>Correo Electrónico:</label><input type="text" id="inEmail" value="juan.perez@hotmail.com" oninput="updateText()"></div>
+    <div class="input-group"><label>Técnico Receptor:</label><input type="text" id="inTecnico" value="Samuel Carrión" oninput="updateText()"></div>
+
+    <h3>2. Datos del Equipo</h3>
+    <div class="input-group"><label>Tipo de Equipo:</label>
+        <select id="inTipo" onchange="updateText()">
+            <option value="Laptop / Portátil">Laptop / Portátil</option>
+            <option value="Computadora de Escritorio (PC)">Computadora de Escritorio (PC)</option>
+            <option value="All In One">All In One</option>
+            <option value="Consola / Otro">Consola / Otro</option>
+        </select>
+    </div>
+    <div class="input-group"><label>Marca y Modelo:</label><input type="text" id="inModelo" value="ASUS TUF Gaming F15" oninput="updateText()"></div>
+    <div class="input-group"><label>Número de Serie:</label><input type="text" id="inSerie" value="SN-ASU7849201-XYZ" oninput="updateText()"></div>
+    <div class="input-group"><label>Contraseña del Equipo:</label><input type="text" id="inPass" value="Juan2026*" oninput="updateText()"></div>
+
+    <h3>3. Accesorios Entregados</h3>
+    <div class="checkbox-grid-panel">
+        <div class="checkbox-group"><input type="checkbox" id="chkCargador" checked onchange="updateText()"><label for="chkCargador">Cargador / Cable Poder</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkBateria" checked onchange="updateText()"><label for="chkBateria">Batería Integrada</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkEstuche" onchange="updateText()"><label for="chkEstuche">Estuche / Bolso</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkMouse" onchange="updateText()"><label for="chkMouse">Mouse / Accesorios</label></div>
     </div>
 
-    <div class="section-title">Datos del Cliente</div>
-    <div class="grid">
-        <div class="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" placeholder="Ej. Juan Pérez">
-        </div>
-        <div class="form-group">
-            <label>Teléfono / WhatsApp</label>
-            <input type="tel" placeholder="Ej. 0999999999">
-        </div>
-        <div class="form-group col-full">
-            <label>Correo Electrónico</label>
-            <input type="email" placeholder="Ej. juan@correo.com">
-        </div>
+    <h3>4. Estado Físico Exterior</h3>
+    <div class="checkbox-grid-panel">
+        <div class="checkbox-group"><input type="checkbox" id="chkRayones" checked onchange="updateText()"><label for="chkRayones">Rayones</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkGolpes" onchange="updateText()"><label for="chkGolpes">Golpes / Fisures</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkPantalla" onchange="updateText()"><label for="chkPantalla">Pantalla rota</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkBisagra" onchange="updateText()"><label for="chkBisagra">Bisagra dañada</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkTornillos" onchange="updateText()"><label for="chkTornillos">Faltan tornillos</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkTeclas" onchange="updateText()"><label for="chkTeclas">Teclas dañadas</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkAbierto" onchange="updateText()"><label for="chkAbierto">Abierto anteriormente</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkLiquido" onchange="updateText()"><label for="chkLiquido">Líquido derramado</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkPuerto" onchange="updateText()"><label for="chkPuerto">Puerto dañado</label></div>
     </div>
 
-    <div class="section-title">Datos del Equipo</div>
-    <div class="grid">
-        <div class="form-group">
-            <label>Marca y Modelo</label>
-            <input type="text" placeholder="Ej. iPhone 13 Pro Max">
-        </div>
-        <div class="form-group">
-            <label>Número de Serie / IMEI</label>
-            <input type="text" placeholder="IMEI o Número de Serie">
-        </div>
-        <div class="form-group col-full">
-            <label>Falla Reportada</label>
-            <textarea placeholder="Describa el problema detalladamente..."></textarea>
-        </div>
-        <div class="form-group col-full">
-            <label>Observaciones Físicas (Rayones, golpes, etc.)</label>
-            <textarea placeholder="Ej. Pantalla trisada, raspaduras leves en bordes..."></textarea>
-        </div>
+    <h3>5. Estado Funcional Inicial</h3>
+    <div class="checkbox-grid-panel">
+        <div class="checkbox-group"><input type="checkbox" id="chkEnciende" checked onchange="updateText()"><label for="chkEnciende">Enciende</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkVideo" checked onchange="updateText()"><label for="chkVideo">Da video</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkSistema" checked onchange="updateText()"><label for="chkSistema">Carga sistema</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="chkBateriaCarga" checked onchange="updateText()"><label for="chkBateriaCarga">Carga batería</label></div>
     </div>
 
-    <div class="section-title">Costos y Garantías</div>
-    <div class="grid">
-        <div class="form-group">
-            <label>Valor del Presupuesto ($)</label>
-            <input type="text" placeholder="0.00">
-        </div>
-        <div class="form-group">
-            <label>Abono Inicial ($)</label>
-            <input type="text" placeholder="0.00">
-        </div>
+    <h3>6. Reporte Técnico</h3>
+    <div class="input-group"><label>Observaciones Adicionales:</label><textarea id="inEstetica" rows="2" oninput="updateText()">El equipo presenta uso normal. No faltan piezas.</textarea></div>
+    <div class="input-group"><label>Falla Reportada / Requerimiento:</label><textarea id="inFalla" rows="3" oninput="updateText()">El equipo se calienta demasiado al cabo de 10 minutos de juego y se apaga de golpe de manera repentina. Requiere mantenimiento preventivo avanzado y cambio de pasta térmica al procesador.</textarea></div>
+
+    <h3>7. Firma Digital del Cliente</h3>
+    <div class="pizarra-contenedor">
+        <canvas id="pizarraFirma" class="pizarra-lienzo"></canvas>
+        <button type="button" class="btn-borrar-firma" onclick="limpiarFirma()">Borrar Firma</button>
     </div>
 
-    <!-- Términos Legales de Aceptación -->
-    <div class="terms-box">
-        <strong>TÉRMINOS Y CONDICIONES:</strong> Al firmar digitalmente este documento, el cliente declara conformidad con la descripción del estado inicial del equipo expuesto en esta ficha. COMPUTOTAL no se responsabiliza por pérdida de datos no respaldados previamente por el usuario, ni por fallas ocultas que se manifiesten durante el proceso de diagnóstico técnico.
-    </div>
+    <button onclick="generatePDF()">DESCARGAR ORDEN DE INGRESO</button>
+</div>
 
-    <!-- Pizarra de Firma Digital -->
-    <div class="signature-area">
-        <label style="font-size: 12px; color: #475569; font-weight: 600; margin-bottom: 5px;">FIRMA DE CONFORMIDAD DEL CLIENTE</label>
-        <div class="canvas-container">
-            <canvas id="signatureCanvas"></canvas>
+<div id="hoja-container">
+    <div id="hoja-ingreso">
+        <div class="header">
+            <div class="logo-svg">
+                <svg viewBox="0 0 320 200">
+                    <rect x="91.5" y="21.5" width="137" height="97" rx="5" fill="none" stroke="#ff4500" stroke-width="6"/>
+                    <rect x="135" y="128" width="50" height="7" fill="#ff4500"/>
+                    <text x="160" y="180" fill="#ff4500" font-size="38" font-family="Arial" font-weight="900" text-anchor="middle">COMPUTOTAL</text>
+                </svg>
+                <div class="num-orden" id="outOrden"></div>
+            </div>
+            <div class="company-info">
+                <p style="font-size: 13px; color: var(--rojo-corp); margin-bottom: 2px;">ORDEN DE INGRESO TÉCNICO</p>
+                <p>Quito, <span id="display-date"></span></p>
+                <p>098-483 4705 / 099 596 7286</p>
+                <p>info@computotal.ec</p>
+            </div>
         </div>
-        <div class="signature-buttons id-botones-firma">
-            <button class="btn-clear" type="button" onclick="clearCanvas()">Borrar Firma</button>
-        </div>
-    </div>
+        
+        <div class="cuerpo">
+            <div class="titulo-seccion">1. Información del Cliente y Control</div>
+            <table class="tabla-datos">
+                <tr>
+                    <td class="lbl">Cliente:</td>
+                    <td id="outCliente" colspan="3"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Teléfono Celular:</td>
+                    <td id="outTelefono"></td>
+                    <td class="lbl">Correo Electrónico:</td>
+                    <td id="outEmail"></td>
+                </tr>
+            </table>
+            
+            <div class="titulo-seccion">2. Detalles Técnicos del Equipo</div>
+            <table class="tabla-datos">
+                <tr>
+                    <td class="lbl">Tipo de Equipo:</td>
+                    <td id="outTipo"></td>
+                    <td class="lbl">Marca / Modelo:</td>
+                    <td id="outModelo"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Número de Serie:</td>
+                    <td id="outSerie"></td>
+                    <td class="lbl">Contraseña Sistema:</td>
+                    <td id="outPass" style="font-family: monospace; font-weight: bold;"></td>
+                </tr>
+            </table>
+            
+            <div class="titulo-seccion">3. Accesorios e Inventario Entregado</div>
+            <table class="tabla-checklist">
+                <tr>
+                    <td><span class="check-item" id="lblCargador"></span> Cargador / Poder</td>
+                    <td><span class="check-item" id="lblBateria"></span> Batería Integrada</td>
+                    <td><span class="check-item" id="lblEstuche"></span> Estuche / Bolso</td>
+                    <td><span class="check-item" id="lblMouse"></span> Mouse / Otros</td>
+                </tr>
+            </table>
 
-    <div class="btn-container id-botones-firma">
-        <button class="btn-download" type="button" onclick="generatePDF()">DESCARGAR ORDEN (PDF)</button>
+            <div class="titulo-seccion">4. Estado Físico Exterior</div>
+            <table class="tabla-checklist">
+                <tr>
+                    <td><span class="check-item" id="lblRayones"></span> Rayones</td>
+                    <td><span class="check-item" id="lblGolpes"></span> Golpes / Fisuras</td>
+                    <td><span class="check-item" id="lblPantalla"></span> Pantalla rota</td>
+                    <td><span class="check-item" id="lblBisagra"></span> Bisagra dañada</td>
+                </tr>
+                <tr>
+                    <td><span class="check-item" id="lblTornillos"></span> Faltan tornillos</td>
+                    <td><span class="check-item" id="lblTeclas"></span> Teclas dañadas</td>
+                    <td><span class="check-item" id="lblAbierto"></span> Abierto antes</td>
+                    <td><span class="check-item" id="lblLiquido"></span> Líq. derramado</td>
+                </tr>
+                <tr>
+                    <td colspan="4"><span class="check-item" id="lblPuerto"></span> Puerto / Conector dañado</td>
+                </tr>
+            </table>
+
+            <div class="titulo-seccion">5. Verificación Funcional de Entrada</div>
+            <table class="tabla-checklist">
+                <tr>
+                    <td><span class="check-item" id="lblEnciende"></span> Enciende</td>
+                    <td><span class="check-item" id="lblVideo"></span> Da video</td>
+                    <td><span class="check-item" id="lblSistema"></span> Carga sistema</td>
+                    <td><span class="check-item" id="lblBateriaCarga"></span> Carga batería</td>
+                </tr>
+            </table>
+            
+            <div style="font-size: 10.5px; font-weight: bold; margin-bottom: 2px; color: #333;">Observaciones Adicionales de Recepción:</div>
+            <div class="box-detalle" id="outEstetica" style="min-height: 35px; margin-bottom: 6px;"></div>
+            
+            <div class="titulo-seccion">6. Síntomas y Diagnóstico Solicitado</div>
+            <div class="box-detalle" id="outFalla" style="min-height: 65px;"></div>
+            
+            <div class="seccion-condiciones">
+                <div style="font-weight: bold; text-decoration: underline; margin-bottom: 4px; color: #000;">Términos y Condiciones del Servicio Técnico:</div>
+                <p>1. <strong>Diagnóstico:</strong> El diagnóstico inicial del equipo se completará en un plazo de 24 a 48 hours laborables.</p>
+                <p>2. <strong>Respaldo de Datos:</strong> COMPUTOTAL no se responsabiliza bajo ningún concepto por la pérdida de información o datos de software almacenados en el equipo durante el proceso de reparación de hardware o formateos. Es deber del cliente entregar sus datos respaldados.</p>
+                <p>3. <strong>Cláusula de Abandono:</strong> Pasados los sesenta (60) días calendario desde la notificación oficial de retiro del equipo, si este no es retirado ni pagado por el cliente, se declarará legalmente en abandono, facultando a COMPUTOTAL a disponer del bien para cubrir costos de almacenamiento, mano de obra o repuestos importados.</p>
+                <p>4. <strong>Garantía:</strong> Los trabajos de reparación tienen una garantía exclusiva de noventa (90) días sobre los componentes cambiados y mano de obra ejecutada.</p>
+            </div>
+            
+            <div class="seccion-firmas">
+                <div class="col-firma">
+                    <!-- Aquí se estampará el dibujo de la firma en el documento final -->
+                    <div style="min-height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <img id="firmaDestino" class="firma-destino-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>" alt="">
+                    </div>
+                    <div class="linea-firma">Firma de Conformidad Cliente</div>
+                </div>
+                <div class="col-firma">
+                    <span id="display-tecnico"></span>
+                    <div class="linea-firma">Técnico Receptor</div>
+                    <p style="font-size: 9px; color: #555; font-weight: normal; margin-top: 2px;">COMPUTOTAL S.A.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div>info@computotal.ec<br>mario@computotal.ec</div>
+            <div style="text-align: right;">098-483 4705 / 099 596 7286<br>Quito - Ecuador</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Configuración de la Pizarra de Firma
-    const canvas = document.getElementById('signatureCanvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
+    function updateText() {
+        document.getElementById('outOrden').innerText = document.getElementById('inOrden').value;
+        document.getElementById('outCliente').innerText = document.getElementById('inCliente').value;
+        document.getElementById('outTelefono').innerText = document.getElementById('inTelefono').value;
+        document.getElementById('outEmail').innerText = document.getElementById('inEmail').value;
+        document.getElementById('display-tecnico').innerText = document.getElementById('inTecnico').value;
+        
+        document.getElementById('outTipo').innerText = document.getElementById('inTipo').value;
+        document.getElementById('outModelo').innerText = document.getElementById('inModelo').value;
+        document.getElementById('outSerie').innerText = document.getElementById('inSerie').value;
+        document.getElementById('outPass').innerText = document.getElementById('inPass').value;
+        
+        document.getElementById('outEstetica').innerText = document.getElementById('inEstetica').value;
+        document.getElementById('outFalla').innerText = document.getElementById('inFalla').value;
+        
+        // Sincronizar Checkboxes
+        document.getElementById('lblCargador').innerText = document.getElementById('chkCargador').checked ? "☑" : "☐";
+        document.getElementById('lblBateria').innerText = document.getElementById('chkBateria').checked ? "☑" : "☐";
+        document.getElementById('lblEstuche').innerText = document.getElementById('chkEstuche').checked ? "☑" : "☐";
+        document.getElementById('lblMouse').innerText = document.getElementById('chkMouse').checked ? "☑" : "☐";
 
-    // Ajustar resolución interna del lienzo
-    function resizeCanvas() {
+        document.getElementById('lblRayones').innerText = document.getElementById('chkRayones').checked ? "☑" : "☐";
+        document.getElementById('lblGolpes').innerText = document.getElementById('chkGolpes').checked ? "☑" : "☐";
+        document.getElementById('lblPantalla').innerText = document.getElementById('chkPantalla').checked ? "☑" : "☐";
+        document.getElementById('lblBisagra').innerText = document.getElementById('chkBisagra').checked ? "☑" : "☐";
+        document.getElementById('lblTornillos').innerText = document.getElementById('chkTornillos').checked ? "☑" : "☐";
+        document.getElementById('lblTeclas').innerText = document.getElementById('chkTeclas').checked ? "☑" : "☐";
+        document.getElementById('lblAbierto').innerText = document.getElementById('chkAbierto').checked ? "☑" : "☐";
+        document.getElementById('lblLiquido').innerText = document.getElementById('chkLiquido').checked ? "☑" : "☐";
+        document.getElementById('lblPuerto').innerText = document.getElementById('chkPuerto').checked ? "☑" : "☐";
+
+        document.getElementById('lblEnciende').innerText = document.getElementById('chkEnciende').checked ? "☑" : "☐";
+        document.getElementById('lblVideo').innerText = document.getElementById('chkVideo').checked ? "☑" : "☐";
+        document.getElementById('lblSistema').innerText = document.getElementById('chkSistema').checked ? "☑" : "☐";
+        document.getElementById('lblBateriaCarga').innerText = document.getElementById('chkBateriaCarga').checked ? "☑" : "☐";
+    }
+
+    // CONTROL DE LA PIZARRA DE FIRMA DIGITAL
+    const canvas = document.getElementById('pizarraFirma');
+    const ctx = canvas.getContext('2d');
+    let dibujando = false;
+
+    function ajustarPizarra() {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
-        ctx.strokeStyle = '#1e293b';
+        ctx.strokeStyle = '#000000';
     }
-    
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('DOMContentLoaded', resizeCanvas);
 
-    // Eventos para Computadora (Mouse)
-    canvas.addEventListener('mousedown', (e) => { drawing = true; draw(e); });
-    canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
-    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('resize', ajustarPizarra);
+    window.addEventListener('DOMContentLoaded', () => {
+        ajustarPizarra();
+        updateText();
+    });
 
-    // Eventos para Celular (Touch)
-    canvas.addEventListener('touchstart', (e) => { drawing = true; drawTouch(e); e.preventDefault(); });
-    canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
-    canvas.addEventListener('touchmove', (e) => { drawTouch(e); e.preventDefault(); });
+    // Mouse para PC
+    canvas.addEventListener('mousedown', (e) => { dibujando = true; pintar(e); });
+    canvas.addEventListener('mouseup', () => { dibujando = false; ctx.beginPath(); trasladarFirma(); });
+    canvas.addEventListener('mousemove', pintar);
 
-    function draw(e) {
-        if (!drawing) return;
+    // Touch para pantallas de celular
+    canvas.addEventListener('touchstart', (e) => { dibujando = true; pintarTouch(e); e.preventDefault(); });
+    canvas.addEventListener('touchend', () => { dibujando = false; ctx.beginPath(); trasladarFirma(); });
+    canvas.addEventListener('touchmove', (e) => { pintarTouch(e); e.preventDefault(); });
+
+    function pintar(e) {
+        if (!dibujando) return;
         const rect = canvas.getBoundingClientRect();
         ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
         ctx.stroke();
     }
 
-    function drawTouch(e) {
-        if (!drawing) return;
+    function pintarTouch(e) {
+        if (!dibujando) return;
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
         ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
         ctx.stroke();
     }
 
-    function clearCanvas() {
+    function limpiarFirma() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('firmaDestino').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>";
     }
 
-    // Función para generar el PDF de la Orden
+    function trasladarFirma() {
+        const dataURL = canvas.toDataURL();
+        document.getElementById('firmaDestino').src = dataURL;
+    }
+
     function generatePDF() {
-        const element = document.getElementById('invoice');
-        
-        // Ocultar botones de descarga y borrado en el PDF final
-        const buttonsToHide = document.querySelectorAll('.id-botones-firma');
-        buttonsToHide.forEach(btn => btn.classList.add('no-print'));
-
-        const numOrden = document.getElementById('orderNumber').value || '001';
-
-        const opt = {
-            margin:       10,
-            filename:     'Orden_Computotal_' + numOrden + '.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            // Volver a mostrar los botones en la pantalla después de descargar
-            buttonsToHide.forEach(btn => btn.classList.remove('no-print'));
-        });
+        // Ejecuta tu función nativa de impresión original
+        window.print();
     }
+    
+    document.getElementById('display-date').innerText = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 </script>
-
 </body>
 </html>
